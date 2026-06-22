@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "likes": {
+      "title": "Likes",
+      "description": "Represents the likes metrics for portfolio projects.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "likesCount": { "type": "integer" }
+      },
+      "required": ["projectId", "likesCount"]
+    },
+    "inquiries": {
+      "title": "Contact Inquiries",
+      "description": "Contact messages submitted by potential clients.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "message": { "type": "string" },
+        "projectId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/likes/{projectId}": {
+      "schema": "likes",
+      "description": "Counter of likes per project."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "inquiries",
+      "description": "Secure list of incoming client contract inquiries."
+    }
+  }
+}

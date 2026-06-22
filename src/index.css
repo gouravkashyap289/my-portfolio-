@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-neon-cyan: #22d3ee;
+  --color-neon-pink: #d946ef;
+  --color-dark-bg: #08080c;
+  --color-card-bg: #121218;
+}
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-white selection:bg-neon-cyan/30;
+  }
+}
+
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-neon-cyan to-neon-pink bg-clip-text text-transparent;
+}
+
+.loading-screen {
+  @apply fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black;
+}
+
+.loading-text {
+  @apply mt-8 font-black tracking-widest text-neon-cyan animate-pulse;
+}
+
+canvas {
+  touch-action: none;
+}

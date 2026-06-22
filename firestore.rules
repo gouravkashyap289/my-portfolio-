@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net - default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL PRIMITIVES & HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail(email) {
+      return isSignedIn() && 
+             request.auth.token.email == email && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedEmail("gouravkashyap289@gmail.com");
+    }
+
+    // Let's use validation check on IDs to avoid resource poisoning
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-+]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- ENTITY VALIDATION HELPERS ---
+    
+    // Validates contact inquiries
+    function isValidInquiry(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 1000 &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+             (!('projectId' in data) || (data.projectId is string && data.projectId.size() <= 128)) &&
+             data.createdAt == request.time;
+    }
+
+    // Validates likes
+    function isValidLikes(data) {
+      return data.projectId is string && data.projectId.size() <= 128 &&
+             data.likesCount is int && data.likesCount >= 0 && data.likesCount <= 1000000;
+    }
+
+    // --- COLLECTION RULES ---
+
+    // Project likes counters
+    match /likes/{projectId} {
+      allow read: if true; // Any visitor can read (get and list) the likes counters
+      
+      allow create: if isValidId(projectId) && 
+                       isValidLikes(incoming()) && 
+                       incoming().likesCount == 1 &&
+                       incoming().projectId == projectId;
+                       
+      allow update: if isValidId(projectId) && 
+                       isValidLikes(incoming()) && 
+                       incoming().projectId == existing().projectId &&
+                       incoming().likesCount == existing().likesCount + 1;
+    }
+
+    // Client contact inquiries
+    match /inquiries/{inquiryId} {
+      // Only the verified admin can read or delete inquiries
+      allow read, delete: if isAdmin();
+      
+      // Anyone can submit a contact inquiry
+      allow create: if isValidId(inquiryId) && 
+                       isValidInquiry(incoming());
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Gourav | Portfolio",
+  "description": "High-performance 3D video editing portfolio for Gourav, featuring WebGL cinematic animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
